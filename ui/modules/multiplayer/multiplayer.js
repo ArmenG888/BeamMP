@@ -803,13 +803,16 @@ var descStyleMap = {
     '^o': 'font-style:italic',
 };
 
-function applyDescCode(string, codes) {
+function applyDescCode(string, codes, link) {
     var elem = document.createElement('span');
 		elem.style.fontSize = 'initial';
     string = string.replace(/\x00*/g, '');
     for(var i = 0, len = codes.length; i < len; i++) {
         elem.style.cssText += descStyleMap[codes[i]] + ';';
     }
+	if(link != undefined){
+		elem.setAttribute("onclick", "openExternalLink('"+link+"')");
+	}
     elem.innerHTML = string;
     return elem;
 }
@@ -822,7 +825,8 @@ function formatDescriptionName(string) {
         deltaIndex,
         noCode,
         final = document.createDocumentFragment(),
-        i;
+        i,
+		link = string.match(/(?:https?:\/\/)?(?:www\.)?([\w.-]+\.[a-z]{2,})(?:\/[\w-]*)*(?:\?[\w=&-]*)?(?:#[\w-]*)?/gi);
     for(i = 0, len = codes.length; i < len; i++) {
         indexes.push( string.indexOf(codes[i]) );
         string = string.replace(codes[i], '\x00\x00');
@@ -848,7 +852,7 @@ function formatDescriptionName(string) {
             apply = apply.slice( apply.lastIndexOf('^r') + 1 );
         }
         tmpStr = string.substring( indexes[i], indexes[i + 1] );
-        final.appendChild( applyDescCode(tmpStr, apply) );
+        final.appendChild( applyDescCode(tmpStr, apply, link) );
     }
 		//$('#TEMPAREA').html(final);
 		document.getElementById('TEMPAREA').innerHTML = final;
